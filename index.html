@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodeR — AI News & Code</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #f0f2f5;
+      color: #1a1a2e;
+      line-height: 1.5;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 8px rgba(100, 108, 255, 0.2); }
+      50% { box-shadow: 0 0 24px rgba(100, 108, 255, 0.5); }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .animate-in { animation: fadeSlideUp 0.5s ease both; }
+
+    /* Header */
+    .header {
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      height: 60px;
+      gap: 24px;
+    }
+    .logo {
+      font-size: 24px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #6c5ce7, #0984e3, #00cec9);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -1px;
+    }
+    .nav { display: flex; gap: 20px; font-size: 14px; }
+    .nav a { color: #555; font-weight: 500; position: relative; padding: 4px 0; transition: 0.2s; }
+    .nav a::after {
+      content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px;
+      background: linear-gradient(90deg, #6c5ce7, #0984e3); transition: 0.3s; border-radius: 2px;
+    }
+    .nav a:hover::after, .nav a.active::after { width: 100%; }
+    .nav a:hover, .nav a.active { color: #1a1a2e; }
+    .header-right { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+    .search-box {
+      display: flex; align-items: center;
+      background: #f0f0f5; border-radius: 24px; padding: 0 16px; height: 36px; transition: 0.2s;
+    }
+    .search-box:focus-within { background: #e8e8f0; box-shadow: 0 0 0 2px rgba(108,92,231,0.15); }
+    .search-box input {
+      border: none; background: transparent; outline: none; font-size: 13px; width: 170px; color: #333;
+    }
+    .search-box input::placeholder { color: #999; }
+    .search-box .icon { color: #999; font-size: 15px; margin-right: 6px; }
+    .btn {
+      font-size: 13px; font-weight: 600; padding: 8px 20px; border-radius: 24px; border: none; cursor: pointer;
+      transition: all 0.25s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #6c5ce7, #0984e3);
+      color: #fff;
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(108,92,231,0.35); }
+    .avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #ddd, #ccc); cursor: pointer; }
+
+    /* Hero — AI News */
+    .hero-news {
+      background: linear-gradient(135deg, #0c0c1d 0%, #1a1a3e 40%, #16213e 100%);
+      padding: 40px 0 48px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-news::before {
+      content: '';
+      position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+      background: radial-gradient(ellipse at 30% 50%, rgba(108,92,231,0.08) 0%, transparent 60%),
+                  radial-gradient(ellipse at 70% 30%, rgba(0,206,201,0.06) 0%, transparent 50%);
+    }
+    .hero-news::after {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(108,92,231,0.3), rgba(0,206,201,0.3), transparent);
+    }
+    .hero-inner {
+      max-width: 1280px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1;
+    }
+    .hero-top {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px;
+    }
+    .hero-title {
+      display: flex; align-items: center; gap: 14px;
+    }
+    .hero-title h1 {
+      font-size: 28px; font-weight: 800; color: #fff; letter-spacing: -0.5px;
+    }
+    .hero-title .badge {
+      font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px;
+      background: rgba(0,206,201,0.15); color: #00cec9; border: 1px solid rgba(0,206,201,0.2);
+      letter-spacing: 0.5px;
+    }
+    .hero-tabs {
+      display: flex; gap: 6px;
+    }
+    .hero-tab {
+      font-size: 12px; font-weight: 600; padding: 6px 16px; border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04);
+      color: rgba(255,255,255,0.6); cursor: pointer; transition: 0.2s;
+    }
+    .hero-tab.active, .hero-tab:hover {
+      background: rgba(108,92,231,0.25); border-color: rgba(108,92,231,0.4); color: #fff;
+    }
+
+    /* Featured news card */
+    .featured-news {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;
+    }
+    .featured-card {
+      border-radius: 16px; padding: 28px; position: relative; overflow: hidden;
+      cursor: pointer; transition: all 0.35s;
+      animation: fadeSlideUp 0.5s ease both;
+    }
+    .featured-card:nth-child(1) { animation-delay: 0.05s; }
+    .featured-card:nth-child(2) { animation-delay: 0.1s; }
+    .featured-card::before {
+      content: ''; position: absolute; inset: 0; opacity: 0.15;
+      background: radial-gradient(ellipse at 70% 20%, rgba(255,255,255,0.3) 0%, transparent 60%);
+    }
+    .featured-card:hover { transform: translateY(-3px); }
+    .featured-card.fc-opencode {
+      background: linear-gradient(135deg, #1a1a4e, #2d1b69);
+      border: 1px solid rgba(108,92,231,0.25);
+    }
+    .featured-card.fc-opencode:hover { box-shadow: 0 8px 32px rgba(108,92,231,0.3); }
+    .featured-card.fc-claude {
+      background: linear-gradient(135deg, #1a2e1a, #1b4a2e);
+      border: 1px solid rgba(0,206,201,0.25);
+    }
+    .featured-card.fc-claude:hover { box-shadow: 0 8px 32px rgba(0,206,201,0.3); }
+    .featured-card.fc-cursor {
+      background: linear-gradient(135deg, #2e1a1a, #691b3a);
+      border: 1px solid rgba(255,107,107,0.25);
+    }
+    .featured-card.fc-cursor:hover { box-shadow: 0 8px 32px rgba(255,107,107,0.3); }
+    .featured-card.fc-codex {
+      background: linear-gradient(135deg, #1a2e2e, #1b4a4a);
+      border: 1px solid rgba(0,150,200,0.25);
+    }
+    .featured-card.fc-codex:hover { box-shadow: 0 8px 32px rgba(0,150,200,0.3); }
+
+    .fc-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+      margin-bottom: 10px; display: inline-block; padding: 3px 10px; border-radius: 6px;
+    }
+    .fc-label.lb-opencode { background: rgba(108,92,231,0.2); color: #a29bfe; }
+    .fc-label.lb-claude { background: rgba(0,206,201,0.15); color: #00cec9; }
+    .fc-label.lb-cursor { background: rgba(255,107,107,0.15); color: #ff6b6b; }
+    .fc-label.lb-codex { background: rgba(0,150,200,0.15); color: #54a0ff; }
+
+    .fc-title { font-size: 18px; font-weight: 700; color: #fff; line-height: 1.35; margin-bottom: 6px; }
+    .fc-desc { font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.5; margin-bottom: 12px; }
+    .fc-meta { font-size: 11px; color: rgba(255,255,255,0.35); display: flex; gap: 12px; }
+    .fc-meta span { display: flex; align-items: center; gap: 4px; }
+    .fc-number {
+      position: absolute; bottom: 20px; right: 24px;
+      font-size: 64px; font-weight: 900; color: rgba(255,255,255,0.04);
+      line-height: 1; user-select: none;
+    }
+
+    /* News Grid */
+    .news-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+    }
+    .news-card {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px; padding: 16px; cursor: pointer; transition: all 0.3s;
+      animation: fadeSlideUp 0.5s ease both;
+    }
+    .news-card:nth-child(1) { animation-delay: 0.1s; }
+    .news-card:nth-child(2) { animation-delay: 0.14s; }
+    .news-card:nth-child(3) { animation-delay: 0.18s; }
+    .news-card:nth-child(4) { animation-delay: 0.22s; }
+    .news-card:nth-child(5) { animation-delay: 0.26s; }
+    .news-card:nth-child(6) { animation-delay: 0.30s; }
+    .news-card:nth-child(7) { animation-delay: 0.34s; }
+    .news-card:nth-child(8) { animation-delay: 0.38s; }
+    .news-card:hover { background: rgba(255,255,255,0.08); transform: translateY(-2px); }
+    .nc-source {
+      font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+      color: rgba(255,255,255,0.3); margin-bottom: 6px;
+    }
+    .nc-title { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.85); line-height: 1.4; margin-bottom: 4px; }
+    .nc-desc { font-size: 11px; color: rgba(255,255,255,0.4); line-height: 1.4; }
+    .nc-time { font-size: 10px; color: rgba(255,255,255,0.25); margin-top: 8px; }
+
+    /* Container */
+    .container { max-width: 1280px; margin: 0 auto; padding: 28px 24px; display: flex; gap: 32px; }
+    .main-content { flex: 1; min-width: 0; }
+    .sidebar { width: 320px; flex-shrink: 0; }
+
+    /* Section title */
+    .section-header {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+    }
+    .section-header h2 {
+      font-size: 20px; font-weight: 800; color: #1a1a2e; letter-spacing: -0.3px;
+    }
+    .section-header .count {
+      font-size: 13px; color: #999; font-weight: 400;
+    }
+    .section-line {
+      flex: 1; height: 1px; background: linear-gradient(90deg, #ddd, transparent);
+    }
+
+    /* Agent Wars */
+    .agent-wars {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px;
+    }
+    .agent-card {
+      border-radius: 16px; padding: 22px; position: relative; overflow: hidden;
+      cursor: pointer; transition: all 0.35s;
+    }
+    .agent-card:hover { transform: translateY(-4px); }
+    .agent-card.ac-opencode {
+      background: linear-gradient(135deg, #f0eeff, #e8e5ff);
+      border: 1px solid rgba(108,92,231,0.15);
+    }
+    .agent-card.ac-opencode:hover { box-shadow: 0 8px 28px rgba(108,92,231,0.15); }
+    .agent-card.ac-claude {
+      background: linear-gradient(135deg, #e8fff8, #d4f5ed);
+      border: 1px solid rgba(0,206,201,0.15);
+    }
+    .agent-card.ac-claude:hover { box-shadow: 0 8px 28px rgba(0,206,201,0.15); }
+    .agent-card.ac-cursor {
+      background: linear-gradient(135deg, #fff0f0, #ffe5e5);
+      border: 1px solid rgba(255,107,107,0.15);
+    }
+    .agent-card.ac-cursor:hover { box-shadow: 0 8px 28px rgba(255,107,107,0.15); }
+    .agent-card.ac-codex {
+      background: linear-gradient(135deg, #e8f4ff, #d5ecff);
+      border: 1px solid rgba(0,150,200,0.15);
+    }
+    .agent-card.ac-codex:hover { box-shadow: 0 8px 28px rgba(0,150,200,0.15); }
+
+    .ac-emoji { font-size: 28px; margin-bottom: 8px; }
+    .ac-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+    .ac-opencode .ac-name { color: #6c5ce7; }
+    .ac-claude .ac-name { color: #00b894; }
+    .ac-cursor .ac-name { color: #e17055; }
+    .ac-codex .ac-name { color: #0984e3; }
+    .ac-stars {
+      font-size: 12px; color: #888; margin-bottom: 10px;
+    }
+    .ac-stars strong { color: #1a1a2e; }
+    .ac-desc {
+      font-size: 12px; color: #666; line-height: 1.5; margin-bottom: 10px;
+    }
+    .ac-tag {
+      display: inline-block; font-size: 10px; font-weight: 600; padding: 3px 10px;
+      border-radius: 12px; margin-right: 4px; margin-bottom: 3px;
+    }
+    .ac-tag.tag-green { background: #d4f5ed; color: #00b894; }
+    .ac-tag.tag-purple { background: #e8e5ff; color: #6c5ce7; }
+    .ac-tag.tag-red { background: #ffe5e5; color: #e17055; }
+    .ac-tag.tag-blue { background: #d5ecff; color: #0984e3; }
+
+    .ac-update {
+      margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.06);
+      font-size: 12px; color: #555;
+    }
+    .ac-update strong { color: #1a1a2e; }
+    .ac-update .fresh { color: #e17055; font-weight: 600; font-size: 10px; }
+
+    /* Post Card */
+    .post {
+      background: #fff; border-radius: 14px; padding: 24px; margin-bottom: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05); transition: all 0.3s; cursor: pointer;
+      animation: fadeSlideUp 0.4s ease both;
+    }
+    .post:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .post-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 13px; color: #888; }
+    .post-meta .avatar { width: 24px; height: 24px; }
+    .post-meta .author { font-weight: 600; color: #333; }
+    .post-meta .date { color: #aaa; }
+    .post-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+    .tag {
+      font-size: 11px; background: #f0f0f5; color: #555; padding: 3px 10px; border-radius: 20px;
+      font-weight: 500; transition: 0.2s;
+    }
+    .tag:hover { background: #e8e5ff; color: #6c5ce7; }
+    .post-title {
+      font-size: 20px; font-weight: 700; line-height: 1.35; margin-bottom: 8px; color: #111;
+    }
+    .post-title:hover { background: linear-gradient(135deg, #6c5ce7, #0984e3); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .post-preview { font-size: 14px; color: #666; line-height: 1.6; margin-bottom: 14px; }
+    .post-stats {
+      display: flex; gap: 18px; font-size: 12px; color: #999; border-top: 1px solid #f0f0f0;
+      padding-top: 14px;
+    }
+    .post-stats span { display: flex; align-items: center; gap: 5px; }
+    .post-stats .views { margin-left: auto; font-weight: 600; color: #888; }
+
+    /* Sidebar */
+    .sidebar-block {
+      background: #fff; border-radius: 14px; padding: 22px; margin-bottom: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+    .sidebar-title {
+      font-size: 15px; font-weight: 700; margin-bottom: 14px; color: #1a1a2e;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .sidebar-title .count { color: #999; font-weight: 400; font-size: 13px; margin-left: auto; }
+    .sidebar-item {
+      display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f3f3f3; align-items: flex-start;
+    }
+    .sidebar-item:last-child { border: none; padding-bottom: 0; }
+    .sidebar-item .rank {
+      width: 26px; height: 26px; border-radius: 8px; background: #f0f0f5;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: #999; flex-shrink: 0;
+    }
+    .sidebar-item .rank.top { background: linear-gradient(135deg, #ffd54f, #ffb300); color: #fff; }
+    .sidebar-item .content { flex: 1; min-width: 0; }
+    .sidebar-item .title { font-size: 13px; font-weight: 600; color: #1a1a2e; line-height: 1.4; }
+    .sidebar-item .title:hover { color: #6c5ce7; }
+    .sidebar-item .meta { font-size: 12px; color: #aaa; margin-top: 3px; }
+
+    .topic-cloud { display: flex; flex-wrap: wrap; gap: 8px; }
+    .topic-cloud .topic {
+      font-size: 12px; color: #555; background: #f5f5fa; padding: 5px 14px; border-radius: 20px;
+      transition: 0.2s; cursor: pointer; border: 1px solid transparent;
+    }
+    .topic-cloud .topic:hover { background: #e8e5ff; color: #6c5ce7; border-color: rgba(108,92,231,0.15); }
+
+    /* Footer */
+    .footer {
+      background: #0c0c1d; padding: 40px 24px; margin-top: 28px; color: rgba(255,255,255,0.5);
+    }
+    .footer-inner {
+      max-width: 1280px; margin: 0 auto; display: flex; justify-content: space-between;
+      font-size: 13px;
+    }
+    .footer-nav { display: flex; gap: 24px; }
+    .footer-nav a { transition: 0.2s; }
+    .footer-nav a:hover { color: #a29bfe; }
+    .footer-logo {
+      font-weight: 800; background: linear-gradient(135deg, #6c5ce7, #00cec9);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .news-grid { grid-template-columns: repeat(2, 1fr); }
+      .agent-wars { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .featured-news { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .header-inner { flex-wrap: wrap; height: auto; padding: 10px 16px; gap: 8px; }
+      .header-right { margin-left: 0; width: 100%; }
+      .search-box { flex: 1; }
+      .search-box input { width: 100%; }
+      .nav { order: 3; width: 100%; overflow-x: auto; padding-bottom: 6px; gap: 14px; }
+      .news-grid { grid-template-columns: 1fr; }
+      .agent-wars { grid-template-columns: 1fr; }
+      .hero-title h1 { font-size: 20px; }
+      .hero-top { flex-direction: column; align-items: flex-start; gap: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="header-inner">
+    <a href="#" class="logo">CodeR</a>
+    <nav class="nav">
+      <a href="#" class="active">Лента</a>
+      <a href="#">AI</a>
+      <a href="#">Разработка</a>
+      <a href="#">DevOps</a>
+      <a href="#">Open Source</a>
+      <a href="#">Научпоп</a>
+    </nav>
+    <div class="header-right">
+      <div class="search-box">
+        <span class="icon">&#x1F50D;</span>
+        <input type="text" placeholder="Поиск новостей AI...">
+      </div>
+      <button class="btn btn-primary">+ Написать</button>
+      <div class="avatar"></div>
+    </div>
+  </div>
+</header>
+
+<!-- Hero: AI News Section -->
+<section class="hero-news">
+  <div class="hero-inner">
+    <div class="hero-top">
+      <div class="hero-title">
+        <h1>&#x1F916; AI-новости</h1>
+        <span class="badge">LIVE</span>
+        <span style="font-size:12px;color:rgba(255,255,255,0.35);margin-left:4px;">vc.ru + Habr &middot; 2–9 июня 2026</span>
+      </div>
+      <div class="hero-tabs">
+        <span class="hero-tab active">Всё</span>
+        <span class="hero-tab">Opencode</span>
+        <span class="hero-tab">Claude Code</span>
+        <span class="hero-tab">Cursor</span>
+        <span class="hero-tab">Codex</span>
+      </div>
+    </div>
+
+    <!-- Featured (Opencode, Claude Code, Cursor, Codex) -->
+    <div class="featured-news">
+      <div class="featured-card fc-opencode">
+        <span class="fc-label lb-opencode">&#x2B50; OPEnCODE</span>
+        <div class="fc-title">OpenCode v1.16.0: managed workspaces, skill discovery, ACP session replay</div>
+        <div class="fc-desc">172K &#x2605; — Новый релиз: управляемые клоны репозиториев, OpenAI через Bedrock, скиллы, `run --replay`, цветовые темы и десятки фиксов.</div>
+        <div class="fc-meta">
+          <span>github.com/anomalyco/opencode</span>
+          <span>&#x1F4C5; 5 июня</span>
+        </div>
+        <div class="fc-number">01</div>
+      </div>
+      <div class="featured-card fc-claude">
+        <span class="fc-label lb-claude">&#x1F4A1; CLAUDE CODE</span>
+        <div class="fc-title">Dynamic Workflows — Claude сам пишет оркестрацию агентов на лету</div>
+        <div class="fc-desc">Claude Code 2.1.163+: динамические воркфлоу, fallback-модели, `/plugin list`, version guardrails для enterprise.</div>
+        <div class="fc-meta">
+          <span>claude.com &middot; 131K &#x2605;</span>
+          <span>&#x1F4C5; 4 июня</span>
+        </div>
+        <div class="fc-number">02</div>
+      </div>
+      <div class="featured-card fc-cursor">
+        <span class="fc-label lb-cursor">&#x1F3A8; CURSOR</span>
+        <div class="fc-title">Cursor 3.7: Design Mode, Canvas, Context Explorer, Auto-review</div>
+        <div class="fc-desc">Визуальные промпты — кликай, обводи, говори голосом. Canvas-артефакты, JSONL-стора для SDK, Organizations.</div>
+        <div class="fc-meta">
+          <span>cursor.com &middot; Gartner Leader 2026</span>
+          <span>&#x1F4C5; 5 июня</span>
+        </div>
+        <div class="fc-number">03</div>
+      </div>
+      <div class="featured-card fc-codex">
+        <span class="fc-label lb-codex">&#x1F4E6; CODEX</span>
+        <div class="fc-title">OpenAI Codex CLI: GPT-5 native + Hermes Plugin с SQLite-памятью</div>
+        <div class="fc-desc">Community-плагин Hermes добавляет FTS5-память Codex — контекст не теряется между сессиями. GPT-5 эксклюзив.</div>
+        <div class="fc-meta">
+          <span>community &middot; Hermes Codex Plugin</span>
+          <span>&#x1F4C5; 7 июня</span>
+        </div>
+        <div class="fc-number">04</div>
+      </div>
+    </div>
+
+    <!-- News Grid (8 cards) -->
+    <div class="news-grid">
+      <div class="news-card">
+        <div class="nc-source">Anthropic</div>
+        <div class="nc-title">Anthropic готовит Claude Fable 5 — публичную версию Mythos</div>
+        <div class="nc-desc">Коммерческая адаптация архитектуры Glasswing для масс</div>
+        <div class="nc-time">vc.ru &middot; 9 июня</div>
+      </div>
+      <div class="news-card">
+        <div class="nc-source">Cursor</div>
+        <div class="nc-title">Teams: раздельные лимиты Composer/Auto и Premium-места</div>
+        <div class="nc-desc">Standard $40 → Premium $120 — в 5x больше включённого использования</div>
+        <div class="nc-time">neuro-ai.ru &middot; 2 июня</div>
+      </div>
+      <div class="news-card">
+        <div class="nc-source">Claude</div>
+        <div class="nc-title">Auto mode для Max plan + Opus 4.8 по умолчанию в fast mode</div>
+        <div class="nc-desc">Работа над долгими задачами без подтверждения на каждом шаге</div>
+        <div class="nc-time">claude.com &middot; 2 июня</div>
+      </div>
+      <div class="news-card">
+        <div class="nc-source">Habr</div>
+        <div class="nc-title">Топ-советы по Claude Code: 56k &#x2605; гайд — что работает, а что мимо</div>
+        <div class="nc-desc">Agentic search vs RAG — спор создателя Claude Code разобран</div>
+        <div class="nc-time">Habr &middot; 9 июня</div>
+      </div>
+      <div class="news-card">
+        <div class="nc-source">Moonshot</div>
+        <div class="nc-title">Kimi Code и Kimi Work — ИИ-агент для локальных файлов</div>
+        <div class="nc-desc">Аналог Claude Cowork от китайской Moonshot AI</div>
+        <div class="nc-time">vc.ru &middot; 9 июня</div>
+      </div>
+      <div class="news-card">
+        <div class="nc-source">Microsoft</div>
+        <div class="nc-title">GitHub: десятки репозиториев закрыты из-за ИИ-вредоноса</div>
+        <div class="nc-desc">Кража данных через ИИ-агентов — AWS, Azure, менеджеры паролей</div>
+        <div class="nc-time">vc.ru (Bloomberg) &middot; 9 июня</div>
+      </div>
+      <div class="news-card">
+        <div class="nc-source">China</div>
+        <div class="nc-title">$295 млрд на ИИ-инфраструктуру от China Mobile и China Telecom</div>
+        <div class="nc-desc">Госкомпании управляют — чипы местного производства</div>
+        <div class="nc-time">Bloomberg &middot; 9 июня</div>
+      </div>
+      <div class="news-card">
+        <div class="nc-source">Yandex</div>
+        <div class="nc-title">Яндекс Дропс: наушники с Алисой AI + споттер в 200 КБ</div>
+        <div class="nc-desc">Первое носимое ИИ-устройство Яндекса: запись идей голосом</div>
+        <div class="nc-time">Habr &middot; 9 июня</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Content -->
+<div class="container">
+  <main class="main-content">
+
+    <!-- Agent Wars: Comparison -->
+    <div class="section-header">
+      <h2>&#x2694;&#xFE0F; Agent Wars</h2>
+      <span class="count">Сравнение AI-кодинг агентов</span>
+      <span class="section-line"></span>
+    </div>
+    <div class="agent-wars">
+      <div class="agent-card ac-opencode">
+        <div class="ac-emoji">&#x1F916;</div>
+        <div class="ac-name">OpenCode</div>
+        <div class="ac-stars">&#x2605; <strong>172K</strong> &middot; MIT</div>
+        <div class="ac-desc">Provider-agnostic, TUI, Go binary. BYOK или $10/mo Go tier. Open-weight модели.</div>
+        <div>
+          <span class="ac-tag tag-purple">#OpenSource</span>
+          <span class="ac-tag tag-purple">#TUI</span>
+          <span class="ac-tag tag-purple">#BYOK</span>
+        </div>
+        <div class="ac-update">
+          <strong>v1.16.0</strong> &middot; Managed workspaces, skill discovery <span class="fresh">&#x1F525; 5 июня</span>
+        </div>
+      </div>
+      <div class="agent-card ac-claude">
+        <div class="ac-emoji">&#x1F9D0;</div>
+        <div class="ac-name">Claude Code</div>
+        <div class="ac-stars">&#x2605; <strong>131K</strong> &middot; Proprietary</div>
+        <div class="ac-desc">Агент от Anthropic. Dynamic workflows, Opus 4.8, ultracode, Auto mode.</div>
+        <div>
+          <span class="ac-tag tag-green">#Claude</span>
+          <span class="ac-tag tag-green">#DynamicWF</span>
+          <span class="ac-tag tag-green">#Opus48</span>
+        </div>
+        <div class="ac-update">
+          <strong>v2.1.163</strong> &middot; Dynamic workflows GA <span class="fresh">&#x1F525; 4 июня</span>
+        </div>
+      </div>
+      <div class="agent-card ac-cursor">
+        <div class="ac-emoji">&#x1F430;</div>
+        <div class="ac-name">Cursor</div>
+        <div class="ac-stars">&#x2605; <strong>—</strong> &middot; Proprietary</div>
+        <div class="ac-desc">IDE-агент от Anysphere. Composer 2.5, Design Mode, Canvas, Cursor SDK.</div>
+        <div>
+          <span class="ac-tag tag-red">#IDE</span>
+          <span class="ac-tag tag-red">#DesignMode</span>
+          <span class="ac-tag tag-red">#SDK</span>
+        </div>
+        <div class="ac-update">
+          <strong>3.7</strong> &middot; Design Mode, Canvas, Context Explorer <span class="fresh">&#x1F525; 5 июня</span>
+        </div>
+      </div>
+      <div class="agent-card ac-codex">
+        <div class="ac-emoji">&#x1F4E6;</div>
+        <div class="ac-name">Codex CLI</div>
+        <div class="ac-stars">&#x2605; <strong>~80K</strong> &middot; Proprietary</div>
+        <div class="ac-desc">OpenAI CLI-агент. Locked to GPT-5. Hermes-плагин для SQLite-памяти.</div>
+        <div>
+          <span class="ac-tag tag-blue">#OpenAI</span>
+          <span class="ac-tag tag-blue">#CLI</span>
+          <span class="ac-tag tag-blue">#GPT5</span>
+        </div>
+        <div class="ac-update">
+          <strong>Hermes Plugin</strong> &middot; FTS5-память, локальный контекст <span class="fresh">&#x1F525; 7 июня</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- More from Habr -->
+    <div class="section-header">
+      <h2>&#x1F4DD; Обзоры с Habr</h2>
+      <span class="count">Глубокий контент по AI-разработке</span>
+      <span class="section-line"></span>
+    </div>
+    <div style="background:#fff;border-radius:14px;padding:4px 22px 18px;margin-bottom:20px;box-shadow:0 1px 4px rgba(0,0,0,0.05);">
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <div style="display:flex;gap:14px;padding:14px 0;border-bottom:1px solid #f3f3f3;align-items:flex-start;">
+          <div style="width:4px;border-radius:3px;background:#6c5ce7;flex-shrink:0;height:40px;margin-top:2px;"></div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:600;color:#1a1a2e;margin-bottom:2px;">От Naive RAG до ReAct-агента: корпоративный AI-помощник на open-source (часть 2)</div>
+            <div style="font-size:12px;color:#888;">Мультиагентная RAG-система, RAGAS-метрики, опыт внедрения &middot; <strong style="color:#6c5ce7;">+3</strong></div>
+          </div>
+          <div style="font-size:11px;color:#aaa;white-space:nowrap;">9 июня</div>
+        </div>
+        <div style="display:flex;gap:14px;padding:14px 0;border-bottom:1px solid #f3f3f3;align-items:flex-start;">
+          <div style="width:4px;border-radius:3px;background:#e17055;flex-shrink:0;height:40px;margin-top:2px;"></div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:600;color:#1a1a2e;margin-bottom:2px;">Харнесс вокруг кодящего агента: как я создал собственного монстра</div>
+            <div style="font-size:12px;color:#888;">Память между сессиями, карта проекта, MCP — и почему половина не юзается &middot; <strong style="color:#6c5ce7;">+9</strong></div>
+          </div>
+          <div style="font-size:11px;color:#aaa;white-space:nowrap;">9 июня</div>
+        </div>
+        <div style="display:flex;gap:14px;padding:14px 0;border-bottom:1px solid #f3f3f3;align-items:flex-start;">
+          <div style="width:4px;border-radius:3px;background:#00b894;flex-shrink:0;height:40px;margin-top:2px;"></div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:600;color:#1a1a2e;margin-bottom:2px;">Яндекс Дропс: как уместили голосовую активацию в 200 КБ</div>
+            <div style="font-size:12px;color:#888;">Архитектура споттера — ограничения памяти, тактовой частоты и SDK &middot; <strong style="color:#6c5ce7;">+36</strong></div>
+          </div>
+          <div style="font-size:11px;color:#aaa;white-space:nowrap;">9 июня</div>
+        </div>
+        <div style="display:flex;gap:14px;padding:14px 0;border-bottom:1px solid #f3f3f3;align-items:flex-start;">
+          <div style="width:4px;border-radius:3px;background:#0984e3;flex-shrink:0;height:40px;margin-top:2px;"></div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:600;color:#1a1a2e;margin-bottom:2px;">Codex жрёт контекст? Hermes Plugin с локальной памятью на SQLite</div>
+            <div style="font-size:12px;color:#888;">FTS5-поиск, маленькие промпты вместо простыней &middot; <strong style="color:#6c5ce7;">+12</strong></div>
+          </div>
+          <div style="font-size:11px;color:#aaa;white-space:nowrap;">9 июня</div>
+        </div>
+        <div style="display:flex;gap:14px;padding:14px 0 4px;align-items:flex-start;">
+          <div style="width:4px;border-radius:3px;background:#a55eea;flex-shrink:0;height:40px;margin-top:2px;"></div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:600;color:#1a1a2e;margin-bottom:2px;">Не делайте AI SaaS — мнение про AI-native agency и преждевременный SaaS</div>
+            <div style="font-size:12px;color:#888;">Фрагментированный рынок, маржа и почему сервису выгоднее AI внутрь &middot; <strong style="color:#6c5ce7;">+3</strong></div>
+          </div>
+          <div style="font-size:11px;color:#aaa;white-space:nowrap;">9 июня</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Posts -->
+    <div class="section-header">
+      <h2>&#x1F4D6; Лента</h2>
+      <span class="count">Популярное в сообществе</span>
+      <span class="section-line"></span>
+    </div>
+
+    <article class="post" style="animation-delay:0.1s;">
+      <div class="post-meta">
+        <div class="avatar"></div>
+        <span class="author">alex_dev</span>
+        <span class="date">18 мая 2026 в 15:42</span>
+      </div>
+      <div class="post-tags">
+        <span class="tag">JavaScript</span>
+        <span class="tag">TypeScript</span>
+        <span class="tag">Node.js</span>
+      </div>
+      <h2 class="post-title">Модульный монолит: архитектура для тех, кто устал от микросервисов</h2>
+      <p class="post-preview">
+        Микросервисы — де-факто стандарт корпоративной разработки, но всё чаще команды переосмысляют подход в пользу модульного монолита. Разбираем, как сохранить границы модулей без боли распределённых систем.
+      </p>
+      <div class="post-stats">
+        <span>&#x1F441; 24k</span>
+        <span>&#x1F4AC; 87</span>
+        <span>&#x2B50; 124</span>
+        <span class="views">&#9201; 5 мин</span>
+      </div>
+    </article>
+
+    <article class="post" style="animation-delay:0.15s;">
+      <div class="post-meta">
+        <div class="avatar"></div>
+        <span class="author">pixel_master</span>
+        <span class="date">18 мая 2026 в 12:15</span>
+      </div>
+      <div class="post-tags">
+        <span class="tag">CSS</span>
+        <span class="tag">Дизайн</span>
+        <span class="tag">UI/UX</span>
+      </div>
+      <h2 class="post-title">Современный CSS в 2026: Container Queries, Layers и View Transitions API</h2>
+      <p class="post-preview">
+        Обзор трёх самых мощных CSS-фич, которые меняют подход к вёрстке. Как использовать container queries для truly responsive компонентов и почему View Transitions — это прорыв.
+      </p>
+      <div class="post-stats">
+        <span>&#x1F441; 18k</span>
+        <span>&#x1F4AC; 54</span>
+        <span>&#x2B50; 89</span>
+        <span class="views">&#9201; 8 мин</span>
+      </div>
+    </article>
+
+    <article class="post" style="animation-delay:0.2s;">
+      <div class="post-meta">
+        <div class="avatar"></div>
+        <span class="author">sysadmin_kat</span>
+        <span class="date">18 мая 2026 в 09:30</span>
+      </div>
+      <div class="post-tags">
+        <span class="tag">DevOps</span>
+        <span class="tag">Docker</span>
+        <span class="tag">Kubernetes</span>
+      </div>
+      <h2 class="post-title">Оптимизация Docker-образов: от 1.5 ГБ до 80 МБ</h2>
+      <p class="post-preview">
+        Пошаговое руководство по уменьшению размера контейнеров: multi-stage сборка, distroless-базы, борьба с кэшем и правильный .dockerignore. Реальный кейс продакшена.
+      </p>
+      <div class="post-stats">
+        <span>&#x1F441; 31k</span>
+        <span>&#x1F4AC; 142</span>
+        <span>&#x2B50; 211</span>
+        <span class="views">&#9201; 12 мин</span>
+      </div>
+    </article>
+  </main>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-block">
+      <div class="sidebar-title">&#x1F525; Лучшее за месяц</div>
+      <div class="sidebar-item">
+        <div class="rank top">1</div>
+        <div class="content">
+          <div class="title">Почему мы перешли с PostgreSQL на SQLite в пет-проекте</div>
+          <div class="meta">+287 &#x2B50; 45k просмотров</div>
+        </div>
+      </div>
+      <div class="sidebar-item">
+        <div class="rank top">2</div>
+        <div class="content">
+          <div class="title">Rust в продакшене: год спустя</div>
+          <div class="meta">+215 &#x2B50; 38k просмотров</div>
+        </div>
+      </div>
+      <div class="sidebar-item">
+        <div class="rank top">3</div>
+        <div class="content">
+          <div class="title">Визуализация на Python: от matplotlib к observability</div>
+          <div class="meta">+198 &#x2B50; 31k просмотров</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-block">
+      <div class="sidebar-title">&#x1F30D; Хабы AI</div>
+      <div class="topic-cloud">
+        <span class="topic">OpenCode</span>
+        <span class="topic">Claude Code</span>
+        <span class="topic">Cursor</span>
+        <span class="topic">Codex</span>
+        <span class="topic">LLM</span>
+        <span class="topic">RAG</span>
+        <span class="topic">AI Agents</span>
+        <span class="topic">MCP</span>
+        <span class="topic">ML/AI</span>
+        <span class="topic">DevOps</span>
+        <span class="topic">Python</span>
+        <span class="topic">Security</span>
+      </div>
+    </div>
+
+    <div class="sidebar-block">
+      <div class="sidebar-title">&#x1F514; Актуальное</div>
+      <div class="sidebar-item">
+        <div class="content">
+          <div class="title">OpenCode v1.16.0 — managed workspaces, skill discovery</div>
+          <div class="meta">5 июня</div>
+        </div>
+      </div>
+      <div class="sidebar-item">
+        <div class="content">
+          <div class="title">Cursor 3.7 — Design Mode с визуальными промптами</div>
+          <div class="meta">5 июня</div>
+        </div>
+      </div>
+      <div class="sidebar-item">
+        <div class="content">
+          <div class="title">Claude Code Dynamic Workflows GA</div>
+          <div class="meta">4 июня</div>
+        </div>
+      </div>
+      <div class="sidebar-item">
+        <div class="content">
+          <div class="title">Hermes Codex Plugin — SQLite-память для Codex CLI</div>
+          <div class="meta">7 июня</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div><span class="footer-logo">CodeR</span> &middot; &copy; 2026</div>
+    <div class="footer-nav">
+      <a href="#">О проекте</a>
+      <a href="#">Реклама</a>
+      <a href="#">Вакансии</a>
+      <a href="#">Помощь</a>
+      <a href="#">Соглашение</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
