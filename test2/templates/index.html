@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Генератор постов для новостей</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="app">
+        <!-- ШАПКА -->
+        <header class="header">
+            <h1>📰 Генератор постов</h1>
+            <p class="subtitle">Введите описание новости — получите готовый пост за секунду</p>
+        </header>
+
+        <div class="layout">
+            <!-- ===== ЛЕВАЯ КОЛОНКА: ФОРМА ===== -->
+            <div class="col-form">
+                <div class="card">
+                    <h2 class="card-title">Новость</h2>
+
+                    {% if error %}
+                        <div class="alert alert-error">{{ error }}</div>
+                    {% endif %}
+
+                    <form method="POST" id="postForm">
+                        <!-- Название новости -->
+                        <div class="field">
+                            <label for="title">Название новости</label>
+                            <input
+                                type="text"
+                                id="title"
+                                name="title"
+                                placeholder="Например: OpenAI представила GPT-5"
+                                value="{{ title or '' }}"
+                            >
+                        </div>
+
+                        <!-- Описание новости -->
+                        <div class="field">
+                            <label for="description" class="required">Описание новости</label>
+                            <textarea
+                                id="description"
+                                name="description"
+                                rows="6"
+                                placeholder="Введите текст новости, подробности, контекст..."
+                                required
+                                oninput="toggleSummary(this)"
+                            >{{ description or '' }}</textarea>
+                            <span class="hint" id="charCount">0 знаков</span>
+                        </div>
+
+                        <!-- Саммари (показывается, если описания > 1000 знаков) -->
+                        <div class="field" id="summaryBlock" style="display: none;">
+                            <label for="summary">Саммари (краткий итог новости)</label>
+                            <textarea
+                                id="summary"
+                                name="summary"
+                                rows="3"
+                                placeholder="Напишите краткий итог новости в 1–2 предложения..."
+                            >{{ summary or '' }}</textarea>
+                        </div>
+
+                        <!-- Выгода -->
+                        <div class="field">
+                            <label for="benefit">Выгода для читателя</label>
+                            <input
+                                type="text"
+                                id="benefit"
+                                name="benefit"
+                                placeholder="Например: Узнайте, как новая модель изменит вашу работу"
+                                value="{{ benefit or '' }}"
+                            >
+                        </div>
+
+                        <!-- Настроение -->
+                        <div class="field">
+                            <label for="mood">Настроение поста</label>
+                            <select id="mood" name="mood">
+                                {% for key, label in moods.items() %}
+                                    <option value="{{ key }}" {% if mood == key %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            ✨ Сформировать пост
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- ===== ПРАВАЯ КОЛОНКА: РЕЗУЛЬТАТ ===== -->
+            <div class="col-result">
+                <!-- Если только что сгенерировали — показываем крупно -->
+                {% if generated_post %}
+                    <div class="card card-result" id="currentPost">
+                        <h2 class="card-title">✅ Готовый пост</h2>
+                        <div class="post-text" id="postText">{{ generated_post }}</div>
+                        <button class="btn btn-copy" onclick="copyPost()">
+                            📋 Скопировать пост
+                        </button>
+                        <span class="copy-msg" id="copyMsg">Пост скопирован ✅</span>
+                    </div>
+                {% endif %}
+
+                <!-- Список всех сформированных постов за сессию -->
+                <div class="card card-history">
+                    <h2 class="card-title">📜 История постов</h2>
+
+                    {% if posts|length == 0 %}
+                        <p class="empty-state">Пока нет ни одного поста. Заполните форму слева и нажмите «Сформировать пост».</p>
+                    {% else %}
+                        {% for post in posts|reverse %}
+                            <div class="history-item">
+                                <div class="history-meta">
+                                    <span class="history-id">#{{ post.id }}</span>
+                                    <span class="history-time">{{ post.time }}</span>
+                                </div>
+                                <pre class="history-text">{{ post.text }}</pre>
+                                <button class="btn btn-small-copy" onclick="copyText(this)">
+                                    📋 Копировать
+                                </button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === Показываем/скрываем поле «Саммари» в зависимости от длины описания ===
+        function toggleSummary(textarea) {
+            const block = document.getElementById('summaryBlock');
+            const count = document.getElementById('charCount');
+            const len = textarea.value.length;
+            count.textContent = len + ' знаков';
+            block.style.display = len > 1000 ? 'block' : 'none';
+        }
+
+        // Вызываем при загрузке, если есть заполненное описание
+        window.addEventListener('DOMContentLoaded', function () {
+            const desc = document.getElementById('description');
+            if (desc) toggleSummary(desc);
+        });
+
+        // === Копирование текущего поста ===
+        function copyPost() {
+            const text = document.getElementById('postText').innerText;
+            navigator.clipboard.writeText(text).then(function () {
+                const msg = document.getElementById('copyMsg');
+                msg.classList.add('visible');
+                setTimeout(function () {
+                    msg.classList.remove('visible');
+                }, 2000);
+            });
+        }
+
+        // === Копирование из истории ===
+        function copyText(btn) {
+            const pre = btn.previousElementSibling;
+            navigator.clipboard.writeText(pre.innerText).then(function () {
+                const orig = btn.textContent;
+                btn.textContent = '✅ Скопировано';
+                setTimeout(function () {
+                    btn.textContent = orig;
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
